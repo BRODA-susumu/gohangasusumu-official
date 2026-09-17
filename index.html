@@ -242,6 +242,31 @@
   .foot-copy { width: 100%; font-size: 12px; color: var(--footer-sub); }
 
 
+
+  /* news cards (thumbnail + auto-expire) */
+  .news-list { display: flex; flex-direction: column; gap: 16px; }
+  .news-card {
+    display: flex; gap: 0; background: var(--card-soft);
+    border: 2px solid var(--line); border-radius: 16px; overflow: hidden;
+    transition: transform .12s;
+  }
+  .news-card:hover { transform: translateY(-3px); }
+  .news-thumb {
+    flex: 0 0 220px; aspect-ratio: 16 / 9; background: var(--thumb);
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+  }
+  .news-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .news-info { flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 16px 20px; min-width: 0; }
+  .news-info .news-tag { align-self: flex-start; }
+  .news-info .news-title { font-weight: 800; font-size: 17px; line-height: 1.4; }
+  .news-info .news-when { color: var(--accent); font-size: 15px; font-weight: 700; }
+  .news-cta { margin-top: auto; font-size: 14px; font-weight: 700; color: var(--sub); }
+  .news-empty { color: var(--sub); font-size: 15px; }
+  @media (max-width: 640px) {
+    .news-card { flex-direction: column; }
+    .news-thumb { flex-basis: auto; width: 100%; }
+  }
+
   /* latest video */
   .latest-video { margin-bottom: 30px; }
   .latest-video h3 { margin: 0 0 12px; font-size: 19px; }
@@ -372,11 +397,7 @@
       </div>
     </summary>
     <div class="wrap sec-body">
-      <a class="news-item" href="https://www.youtube.com/watch?v=j4hrigtTZbA" target="_blank" rel="noopener">
-        <div class="news-tag">大会</div>
-        <div class="news-title">VTuber限定公認大会 開催！<span class="news-when">2026年10月3日(土) 21:00〜開始</span></div>
-        <div class="news-date">配信ページを見る →</div>
-      </a>
+      <div id="newsList" class="news-list"><p class="news-empty">読み込み中…</p></div>
     </div>
   </details>
 
@@ -594,6 +615,56 @@
       }
     })
     .catch(function (e) { /* data未取得時はフォールバック表示のまま */ });
+})();
+</script>
+<script>
+(function () {
+  function ytId(u) {
+    try {
+      var m = String(u).match(/(?:youtube\.com\/(?:watch\?v=|live\/|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+      return m ? m[1] : null;
+    } catch (e) { return null; }
+  }
+  function esc(s) { var d = document.createElement('div'); d.textContent = String(s == null ? '' : s); return d.innerHTML; }
+  fetch('data/news.json?v=' + Date.now())
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (d) {
+      var list = document.getElementById('newsList');
+      if (!list) return;
+      var now = Date.now();
+      var items = (d.items || []).filter(function (it) {
+        if (!it.expire) return true;
+        var t = Date.parse(it.expire);
+        return isNaN(t) ? true : (t > now);
+      });
+      if (items.length === 0) {
+        list.innerHTML = '<p class="news-empty">現在お知らせはありません。</p>';
+        return;
+      }
+      list.innerHTML = '';
+      items.forEach(function (it) {
+        var thumb = it.thumb || '';
+        if (!thumb) { var id = ytId(it.url || ''); if (id) thumb = 'https://img.youtube.com/vi/' + id + '/hqdefault.jpg'; }
+        var a = document.createElement('a');
+        a.className = 'news-card';
+        a.href = it.url || '#';
+        a.target = '_blank';
+        a.rel = 'noopener';
+        var th = thumb ? '<div class="news-thumb"><img src="' + esc(thumb) + '" alt="" loading="lazy"></div>' : '';
+        a.innerHTML = th +
+          '<div class="news-info">' +
+          (it.tag ? '<span class="news-tag">' + esc(it.tag) + '</span>' : '') +
+          '<div class="news-title">' + esc(it.title) + '</div>' +
+          (it.when ? '<span class="news-when">' + esc(it.when) + '</span>' : '') +
+          '<span class="news-cta">' + esc(it.cta || '詳細を見る →') + '</span>' +
+          '</div>';
+        list.appendChild(a);
+      });
+    })
+    .catch(function () {
+      var list = document.getElementById('newsList');
+      if (list) list.innerHTML = '<p class="news-empty">現在お知らせはありません。</p>';
+    });
 })();
 </script>
 </body>
