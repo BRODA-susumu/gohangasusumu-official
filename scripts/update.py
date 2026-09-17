@@ -29,21 +29,25 @@ def http_get(url, timeout=30):
         return r.read().decode("utf-8", errors="replace")
 
 
-def fetch_latest_video():
-    """YouTubeチャンネルRSSの最初のエントリを返す。"""
+def fetch_latest_videos(n=5):
+    """YouTubeチャンネルRSSから最新n件のエントリを返す（新しい順）。"""
     url = f"https://www.youtube.com/feeds/videos.xml?channel_id={CHANNEL_ID}"
     xml = http_get(url)
     ns = {"a": "http://www.w3.org/2005/Atom", "yt": "http://www.youtube.com/xml/schemas/2015"}
     root = ElementTree.fromstring(xml)
-    entry = root.find("a:entry", ns)
-    if entry is None:
+    out = []
+    for entry in root.findall("a:entry", ns):
+        vid = entry.findtext("yt:videoId", namespaces=ns)
+        if not vid:
+            continue
+        title = entry.findtext("a:title", namespaces=ns)
+        published = entry.findtext("a:published", namespaces=ns)
+        out.append({"id": vid, "title": title or "", "published": published or ""})
+        if len(out) >= n:
+            break
+    if not out:
         raise RuntimeError("RSS feed has no entries")
-    vid = entry.findtext("yt:videoId", namespaces=ns)
-    title = entry.findtext("a:title", namespaces=ns)
-    published = entry.findtext("a:published", namespaces=ns)
-    if not vid:
-        raise RuntimeError("videoId not found in RSS entry")
-    return {"id": vid, "title": title or "", "published": published or ""}
+    return out
 
 
 def _walk(obj, found):
@@ -114,11 +118,14 @@ def main():
 
     # --- YouTube ---
     try:
-        latest = fetch_latest_video()
-        if data.get("latest_video", {}).get("id") != latest["id"]:
-            changed.append(f"latest_video -> {latest['id']}")
-        data["latest_video"] = latest
-        print(f"[youtube] latest: {latest['id']} {latest['title']!r}")
+        latests = fetch_latest_videos(5)
+        old_ids = [v.get("id") for v in data.get("latest_videos", [])]
+        new_ids = [v["id"] for v in latests]
+        if old_ids != new_ids:
+            changed.append(f"latest_videos -> {new_ids[0]} (+{len(new_ids)})")
+        data["latest_videos"] = latests
+        data["latest_video"] = latests[0]  # 後方互換（メイン埋め込み用）
+        print(f"[youtube] latest: {latests[0]['id']} {latests[0]['title']!r} ({len(latests)} videos)")
     except Exception as e:
         print(f"[youtube] FAILED: {e} (keeping previous value)")
 
