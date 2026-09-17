@@ -1,0 +1,35 @@
+name: daily-update
+
+on:
+  schedule:
+    # 05:45 JST (= 20:45 UTC) 毎日
+    - cron: "45 20 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run update script
+        run: python3 scripts/update.py
+
+      - name: Commit & push if changed
+        run: |
+          if git diff --quiet; then
+            echo "No changes."
+            exit 0
+          fi
+          git config user.name "site-updater"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/site.json
+          git commit -m "自動更新: 最新動画・固定ポスト ($(TZ=Asia/Tokyo date +%Y-%m-%d))"
+          git push
