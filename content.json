@@ -6,17 +6,10 @@
   },
   "links": [
     {
-      "name": "ご飯がすすむ",
-      "sub": "YouTube・メインチャンネル",
+      "name": "メインチャンネル",
+      "sub": "YouTube・ご飯がすすむ",
       "url": "https://www.youtube.com/@%E3%81%94%E9%A3%AF%E3%81%8C%E3%81%99%E3%81%99%E3%82%80",
-      "icon": "メイン",
-      "color": "var(--accent)"
-    },
-    {
-      "name": "すすむ制作室",
-      "sub": "YouTube・サブチャンネル",
-      "url": "https://www.youtube.com/@gohangasusumu84",
-      "icon": "サブ",
+      "icon": "YT",
       "color": "var(--accent)"
     },
     {
@@ -28,7 +21,7 @@
     },
     {
       "name": "メンバーシップ",
-      "sub": "限定の動画や配信が視聴可能",
+      "sub": "限定動画・限定配信など",
       "url": "https://www.youtube.com/channel/UC9DMzlsk9q_8kB-1fK8J3Zw/join",
       "icon": "★",
       "color": "var(--yellow)"
@@ -47,7 +40,7 @@
       "label": "2023年（1年目）"
     },
     {
-      "date": "2023.05.02",
+      "date": "2023.05",
       "body": "YouTubeチャンネル初投稿",
       "sub": ""
     },
@@ -158,7 +151,7 @@
     {
       "tag": "大会",
       "title": "VTuber限定公認大会 開催！",
-      "url": "https://www.youtube.com/watch?v=j4hrigtTZbA",
+      "url": "https://www.youtube.com/live/nW6D2-NeXvs",
       "when": "2026年10月3日(土) 21:00〜開始",
       "cta": "配信ページを見る →",
       "thumb": "",
