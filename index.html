@@ -50,7 +50,7 @@
   h1, h2, h3 { font-family: 'M PLUS Rounded 1c', 'Zen Maru Gothic', sans-serif; }
   a { color: inherit; text-decoration: none; }
   img, svg { max-width: 100%; }
-  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 clamp(22px, 5vw, 32px); box-sizing: border-box; }
   .duck-icon { border-radius: 50%; border: 2px solid var(--line); object-fit: cover; background: var(--yellow); }
 
   /* ---------- header ---------- */
@@ -250,9 +250,13 @@
   .foot-in { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding: 32px 0; }
   .foot-brand { display: flex; align-items: center; gap: 10px; font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 800; font-size: 17px; }
   .foot-brand img { width: 34px; height: 34px; border-color: var(--footer-ink); }
-  .foot-links { display: flex; gap: 22px; font-size: 14px; margin-left: auto; }
+  .foot-links { display: flex; gap: 22px; font-size: 14px; margin-left: auto; flex-wrap: wrap; }
   .foot-links a:hover { color: var(--accent); }
   .foot-copy { width: 100%; font-size: 12px; color: var(--footer-sub); }
+  @media (max-width: 640px) {
+    .foot-in { gap: 14px; padding: 26px 0; }
+    .foot-links { margin-left: 0; width: 100%; gap: 18px; }
+  }
 
 
 
@@ -350,9 +354,9 @@
   <section class="hero">
     <div class="wrap hero-in">
       <div class="hero-txt">
-        <div class="badge">蟲神器・イジンデン・千怪戦戯 公認サポーター</div>
+        <div class="badge" id="heroBadge">蟲神器・イジンデン・千怪戦戯 公認サポーター</div>
         <h1>ご飯がすすむ</h1>
-        <p>DAISOのTCG（蟲神器・イジンデン・千怪戦戯）を中心に、遊び方・対戦動画・公認大会の実況など、カードゲームが楽しくなる情報をお届けするチャンネルです。</p>
+        <p id="heroTagline">DAISOのTCG（蟲神器・イジンデン・千怪戦戯）を中心に、遊び方・対戦動画・公認大会の実況など、カードゲームが楽しくなる情報をお届けするチャンネルです。</p>
         <div class="btn-row">
           <a class="btn btn-red" href="https://www.youtube.com/@%E3%81%94%E9%A3%AF%E3%81%8C%E3%81%99%E3%81%99%E3%82%80" target="_blank" rel="noopener">YouTubeを見る</a>
           <a class="btn btn-white" href="https://x.com/ahirugohan084" target="_blank" rel="noopener">Xをフォロー</a>
@@ -374,7 +378,7 @@
       </div>
     </summary>
     <div class="wrap sec-body">
-      <p class="about-text">「ご飯がすすむ」は、DAISOのトレーディングカードゲーム（蟲神器・イジンデン・千怪戦戯）を中心に、遊び方の解説・対戦・開封・公認大会の実況などをお届けするYouTubeチャンネルです。3タイトルすべての公認サポーターを務めています。カードゲームがもっと楽しくなる情報を、初心者の方にも分かりやすくお届けしています。</p>
+      <p class="about-text" id="aboutText">「ご飯がすすむ」は、DAISOのトレーディングカードゲーム（蟲神器・イジンデン・千怪戦戯）を中心に、遊び方の解説・対戦・開封・公認大会の実況などをお届けするYouTubeチャンネルです。3タイトルすべての公認サポーターを務めています。カードゲームがもっと楽しくなる情報を、初心者の方にも分かりやすくお届けしています。</p>
     </div>
   </details>
 
@@ -464,7 +468,7 @@
       </div>
     </summary>
     <div class="wrap sec-body">
-      <ul class="timeline">
+      <ul class="timeline" id="worksTimeline">
         <li class="tl-y"><span class="tl-year">2023年（1年目）</span></li>
         <li><div class="tl-date">2023.05</div><div class="tl-body">YouTubeチャンネル初投稿</div></li>
         <li><div class="tl-date">2023.06</div><div class="tl-body">アヒル杯上位5名 vs 福岡＆ヒグラシサーバー連合<div class="tl-sub">エキシビジョンマッチを実現</div></div></li>
@@ -532,7 +536,7 @@
       </div>
     </summary>
     <div class="wrap sec-body">
-      <div class="link-grid">
+      <div class="link-grid" id="linkGrid">
         <a class="link-btn" href="https://www.youtube.com/@%E3%81%94%E9%A3%AF%E3%81%8C%E3%81%99%E3%81%99%E3%82%80" target="_blank" rel="noopener"><span class="lb-ic">YT</span><span class="lb-txt"><span class="lb-name">メインチャンネル</span><span class="lb-sub">YouTube・ご飯がすすむ</span></span></a>
         <a class="link-btn" href="https://www.youtube.com/@gohangasusumu84" target="_blank" rel="noopener"><span class="lb-ic" style="background:var(--yellow);color:#23201A;">制作</span><span class="lb-txt"><span class="lb-name">すすむ制作室</span><span class="lb-sub">サブCH・Final Cut / OBS講座</span></span></a>
         <a class="link-btn" href="https://x.com/ahirugohan084" target="_blank" rel="noopener"><span class="lb-ic" style="background:#111;">X</span><span class="lb-txt"><span class="lb-name">X（旧Twitter）</span><span class="lb-sub">最新情報・告知</span></span></a>
@@ -699,41 +703,86 @@
       return m ? m[1] : null;
     } catch (e) { return null; }
   }
-  function esc(s) { var d = document.createElement('div'); d.textContent = String(s == null ? '' : s); return d.innerHTML; }
-  fetch('data/news.json?v=' + Date.now())
+  function setText(id, v) { var el = document.getElementById(id); if (el && v != null && v !== '') el.textContent = v; }
+  var ICON_TXT = { 'var(--accent)': '#fff', 'var(--yellow)': '#23201A', '#111': '#fff', '#fc4d50': '#fff', '#1DA1F2': '#fff' };
+
+  fetch('data/content.json?v=' + Date.now())
     .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(function (d) {
-      var list = document.getElementById('newsList');
-      if (!list) return;
-      var now = Date.now();
-      var items = (d.items || []).filter(function (it) {
-        if (!it.expire) return true;
-        var t = Date.parse(it.expire);
-        return isNaN(t) ? true : (t > now);
-      });
-      if (items.length === 0) {
-        list.innerHTML = '<p class="news-empty">現在お知らせはありません。</p>';
-        return;
+      // ---- テキスト ----
+      if (d.texts) {
+        setText('heroBadge', d.texts.badge);
+        setText('heroTagline', d.texts.tagline);
+        setText('aboutText', d.texts.about);
       }
-      list.innerHTML = '';
-      items.forEach(function (it) {
-        var thumb = it.thumb || '';
-        if (!thumb) { var id = ytId(it.url || ''); if (id) thumb = 'https://img.youtube.com/vi/' + id + '/hqdefault.jpg'; }
-        var a = document.createElement('a');
-        a.className = 'news-card';
-        a.href = it.url || '#';
-        a.target = '_blank';
-        a.rel = 'noopener';
-        var th = thumb ? '<div class="news-thumb"><img src="' + esc(thumb) + '" alt="" loading="lazy"></div>' : '';
-        a.innerHTML = th +
-          '<div class="news-info">' +
-          (it.tag ? '<span class="news-tag">' + esc(it.tag) + '</span>' : '') +
-          '<div class="news-title">' + esc(it.title) + '</div>' +
-          (it.when ? '<span class="news-when">' + esc(it.when) + '</span>' : '') +
-          '<span class="news-cta">' + esc(it.cta || '詳細を見る →') + '</span>' +
-          '</div>';
-        list.appendChild(a);
-      });
+      // ---- リンク ----
+      if (d.links && d.links.length) {
+        var lg = document.getElementById('linkGrid');
+        if (lg) {
+          lg.innerHTML = '';
+          d.links.forEach(function (v) {
+            if (!v || !v.url) return;
+            var a = document.createElement('a'); a.className = 'link-btn'; a.href = v.url; a.target = '_blank'; a.rel = 'noopener';
+            var ic = document.createElement('span'); ic.className = 'lb-ic';
+            var bg = v.color || 'var(--accent)'; ic.style.background = bg; ic.style.color = ICON_TXT[bg] || '#fff';
+            ic.textContent = v.icon || '';
+            var tx = document.createElement('span'); tx.className = 'lb-txt';
+            var nm = document.createElement('span'); nm.className = 'lb-name'; nm.textContent = v.name || '';
+            tx.appendChild(nm);
+            if (v.sub) { var sb = document.createElement('span'); sb.className = 'lb-sub'; sb.textContent = v.sub; tx.appendChild(sb); }
+            a.appendChild(ic); a.appendChild(tx); lg.appendChild(a);
+          });
+        }
+      }
+      // ---- 実績（タイムライン） ----
+      if (d.works && d.works.length) {
+        var ul = document.getElementById('worksTimeline');
+        if (ul) {
+          ul.innerHTML = '';
+          d.works.forEach(function (w) {
+            if (!w) return;
+            var li = document.createElement('li');
+            if (w.type === 'year') {
+              li.className = 'tl-y';
+              var s = document.createElement('span'); s.className = 'tl-year'; s.textContent = w.label || '';
+              li.appendChild(s);
+            } else {
+              var dd = document.createElement('div'); dd.className = 'tl-date'; dd.textContent = w.date || '';
+              var bd = document.createElement('div'); bd.className = 'tl-body'; bd.appendChild(document.createTextNode(w.body || ''));
+              if (w.sub) { var su = document.createElement('div'); su.className = 'tl-sub'; su.textContent = w.sub; bd.appendChild(su); }
+              li.appendChild(dd); li.appendChild(bd);
+            }
+            ul.appendChild(li);
+          });
+        }
+      }
+      // ---- お知らせ（期限切れ自動非表示） ----
+      var list = document.getElementById('newsList');
+      if (list) {
+        var now = Date.now();
+        var items = (d.news || []).filter(function (it) {
+          if (!it.expire) return true;
+          var t = Date.parse(it.expire);
+          return isNaN(t) ? true : (t > now);
+        });
+        if (items.length === 0) {
+          list.innerHTML = '<p class="news-empty">現在お知らせはありません。</p>';
+        } else {
+          list.innerHTML = '';
+          items.forEach(function (it) {
+            var thumb = it.thumb || '';
+            if (!thumb) { var id = ytId(it.url || ''); if (id) thumb = 'https://img.youtube.com/vi/' + id + '/hqdefault.jpg'; }
+            var a = document.createElement('a'); a.className = 'news-card'; a.href = it.url || '#'; a.target = '_blank'; a.rel = 'noopener';
+            if (thumb) { var th = document.createElement('div'); th.className = 'news-thumb'; var im = document.createElement('img'); im.src = thumb; im.alt = ''; im.loading = 'lazy'; th.appendChild(im); a.appendChild(th); }
+            var info = document.createElement('div'); info.className = 'news-info';
+            if (it.tag) { var tg = document.createElement('span'); tg.className = 'news-tag'; tg.textContent = it.tag; info.appendChild(tg); }
+            var ti = document.createElement('div'); ti.className = 'news-title'; ti.textContent = it.title || ''; info.appendChild(ti);
+            if (it.when) { var wh = document.createElement('span'); wh.className = 'news-when'; wh.textContent = it.when; info.appendChild(wh); }
+            var ct = document.createElement('span'); ct.className = 'news-cta'; ct.textContent = it.cta || '詳細を見る →'; info.appendChild(ct);
+            a.appendChild(info); list.appendChild(a);
+          });
+        }
+      }
     })
     .catch(function () {
       var list = document.getElementById('newsList');
