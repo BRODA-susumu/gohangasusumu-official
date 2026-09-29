@@ -1,14 +1,19 @@
 {
   "latest_video": {
-    "id": "zzEAvsARHgI",
-    "title": "【蟲神器】VTuber限定公認大会｜蟲神器 めざせ！最強の蟲主",
-    "published": "2026-09-27T14:08:36+00:00"
+    "id": "lCbVzcej-oM",
+    "title": "【蟲神器】アヒル杯１回戦【蚕蟲祭イベント】",
+    "published": "2026-09-29T13:58:03+00:00"
   },
   "pinned_post": {
     "url": "https://x.com/ahirugohan084/status/2097672621257019789"
   },
-  "updated_at": "2026-09-27T20:53:09+00:00",
+  "updated_at": "2026-09-29T20:55:19+00:00",
   "latest_videos": [
+    {
+      "id": "lCbVzcej-oM",
+      "title": "【蟲神器】アヒル杯１回戦【蚕蟲祭イベント】",
+      "published": "2026-09-29T13:58:03+00:00"
+    },
     {
       "id": "zzEAvsARHgI",
       "title": "【蟲神器】VTuber限定公認大会｜蟲神器 めざせ！最強の蟲主",
@@ -28,11 +33,6 @@
       "id": "UY4161qkqwg",
       "title": "【蟲神器】返事は元気に杯！準決勝【蚕蟲祭イベント】",
       "published": "2026-09-27T08:33:52+00:00"
-    },
-    {
-      "id": "HWaa_rYtBL0",
-      "title": "【蟲神器】返事は元気に杯！２回戦【蚕蟲祭イベント】",
-      "published": "2026-09-26T09:19:08+00:00"
     }
   ]
 }
