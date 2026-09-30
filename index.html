@@ -635,6 +635,61 @@
 })();
 </script>
 <script>
+// お知らせ描画（自動: 今後のライブ配信 ＋ 手動: content.json）
+window.SiteNews = (function () {
+  var manual = null, lives = null;
+  function ytId(u) {
+    try { var m = String(u).match(/(?:youtube\.com\/(?:watch\?v=|live\/|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/); return m ? m[1] : null; }
+    catch (e) { return null; }
+  }
+  function fmtJST(iso) {
+    try {
+      var d = new Date(iso); if (isNaN(d)) return '';
+      var p = {};
+      new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: 'numeric', day: 'numeric', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false })
+        .formatToParts(d).forEach(function (x) { p[x.type] = x.value; });
+      return p.year + '年' + p.month + '月' + p.day + '日(' + p.weekday + ') ' + p.hour + ':' + p.minute + '〜配信予定';
+    } catch (e) { return ''; }
+  }
+  function card(it) {
+    var a = document.createElement('a'); a.className = 'news-card'; a.href = it.url || '#'; a.target = '_blank'; a.rel = 'noopener';
+    if (it.thumb) { var th = document.createElement('div'); th.className = 'news-thumb'; var im = document.createElement('img'); im.src = it.thumb; im.alt = ''; im.loading = 'lazy'; th.appendChild(im); a.appendChild(th); }
+    var info = document.createElement('div'); info.className = 'news-info';
+    if (it.tag) { var tg = document.createElement('span'); tg.className = 'news-tag'; tg.textContent = it.tag; info.appendChild(tg); }
+    var ti = document.createElement('div'); ti.className = 'news-title'; ti.textContent = it.title || ''; info.appendChild(ti);
+    if (it.when) { var wh = document.createElement('span'); wh.className = 'news-when'; wh.textContent = it.when; info.appendChild(wh); }
+    var ct = document.createElement('span'); ct.className = 'news-cta'; ct.textContent = it.cta || '詳細を見る →'; info.appendChild(ct);
+    a.appendChild(info); return a;
+  }
+  function render() {
+    var list = document.getElementById('newsList'); if (!list) return;
+    if (manual === null && lives === null) return; // どちらも未取得なら読み込み中のまま
+    var now = Date.now();
+    var out = [];
+    // 今後のライブ配信（自動・タグなし・開始時刻を過ぎたら非表示）
+    (lives || []).forEach(function (v) {
+      if (!v || !v.url) return;
+      var t = Date.parse(v.start); if (!isNaN(t) && t <= now) return;
+      var id = v.video_id || ytId(v.url);
+      out.push({ url: v.url, title: v.title || '', when: fmtJST(v.start), cta: '配信ページを見る →', thumb: id ? ('https://img.youtube.com/vi/' + id + '/hqdefault.jpg') : '' });
+    });
+    // 手動お知らせ（content.json・期限切れ非表示）
+    (manual || []).forEach(function (it) {
+      if (!it) return;
+      if (it.expire) { var t = Date.parse(it.expire); if (!isNaN(t) && t <= now) return; }
+      var thumb = it.thumb || ''; if (!thumb) { var id = ytId(it.url || ''); if (id) thumb = 'https://img.youtube.com/vi/' + id + '/hqdefault.jpg'; }
+      out.push({ url: it.url, title: it.title || '', when: it.when || '', cta: it.cta || '詳細を見る →', tag: it.tag || '', thumb: thumb });
+    });
+    if (out.length === 0) { list.innerHTML = '<p class="news-empty">現在お知らせはありません。</p>'; return; }
+    list.innerHTML = ''; out.forEach(function (m) { list.appendChild(card(m)); });
+  }
+  return {
+    setLives: function (v) { lives = v || []; render(); },
+    setManual: function (v) { manual = v || []; render(); }
+  };
+})();
+</script>
+<script>
 (function () {
   fetch('data/site.json?v=' + Date.now())
     .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
@@ -692,8 +747,10 @@
           document.body.appendChild(s);
         }
       }
+      // 今後のライブ配信 → お知らせ
+      if (window.SiteNews) window.SiteNews.setLives(d.upcoming_lives || []);
     })
-    .catch(function (e) { /* data未取得時はフォールバック表示のまま */ });
+    .catch(function (e) { if (window.SiteNews) window.SiteNews.setLives([]); });
 })();
 </script>
 <script>
@@ -757,37 +814,11 @@
           });
         }
       }
-      // ---- お知らせ（期限切れ自動非表示） ----
-      var list = document.getElementById('newsList');
-      if (list) {
-        var now = Date.now();
-        var items = (d.news || []).filter(function (it) {
-          if (!it.expire) return true;
-          var t = Date.parse(it.expire);
-          return isNaN(t) ? true : (t > now);
-        });
-        if (items.length === 0) {
-          list.innerHTML = '<p class="news-empty">現在お知らせはありません。</p>';
-        } else {
-          list.innerHTML = '';
-          items.forEach(function (it) {
-            var thumb = it.thumb || '';
-            if (!thumb) { var id = ytId(it.url || ''); if (id) thumb = 'https://img.youtube.com/vi/' + id + '/hqdefault.jpg'; }
-            var a = document.createElement('a'); a.className = 'news-card'; a.href = it.url || '#'; a.target = '_blank'; a.rel = 'noopener';
-            if (thumb) { var th = document.createElement('div'); th.className = 'news-thumb'; var im = document.createElement('img'); im.src = thumb; im.alt = ''; im.loading = 'lazy'; th.appendChild(im); a.appendChild(th); }
-            var info = document.createElement('div'); info.className = 'news-info';
-            if (it.tag) { var tg = document.createElement('span'); tg.className = 'news-tag'; tg.textContent = it.tag; info.appendChild(tg); }
-            var ti = document.createElement('div'); ti.className = 'news-title'; ti.textContent = it.title || ''; info.appendChild(ti);
-            if (it.when) { var wh = document.createElement('span'); wh.className = 'news-when'; wh.textContent = it.when; info.appendChild(wh); }
-            var ct = document.createElement('span'); ct.className = 'news-cta'; ct.textContent = it.cta || '詳細を見る →'; info.appendChild(ct);
-            a.appendChild(info); list.appendChild(a);
-          });
-        }
-      }
+      // ---- お知らせ（手動分・content.json） ----
+      if (window.SiteNews) window.SiteNews.setManual(d.news || []);
     })
     .catch(function () {
-      var list = document.getElementById('newsList');
-      if (list) list.innerHTML = '<p class="news-empty">現在お知らせはありません。</p>';
+      if (window.SiteNews) window.SiteNews.setManual([]);
     });
 })();
 </script>
