@@ -29,7 +29,7 @@ def http_get(url, timeout=30):
         return r.read().decode("utf-8", errors="replace")
 
 
-def fetch_latest_videos(n=5):
+def fetch_rss_entries(n=15):
     """YouTubeチャンネルRSSから最新n件のエントリを返す（新しい順）。"""
     url = f"https://www.youtube.com/feeds/videos.xml?channel_id={CHANNEL_ID}"
     xml = http_get(url)
@@ -48,6 +48,57 @@ def fetch_latest_videos(n=5):
     if not out:
         raise RuntimeError("RSS feed has no entries")
     return out
+
+
+def fetch_latest_videos(n=5):
+    """表示用の最新n件（後方互換）。"""
+    return fetch_rss_entries(n)
+
+
+def _json_str(raw):
+    """JSON文字列リテラルのエスケープ（\\uXXXX, \\/ など）を復元する。"""
+    try:
+        return json.loads('"' + raw + '"')
+    except Exception:
+        return raw
+
+
+def fetch_upcoming_lives(candidate_ids, max_check=12):
+    """候補の動画IDについてwatchページを調べ、開始予定の配信（プレミア含む）を返す。
+    APIキー不要。watchページの ytInitialPlayerResponse から
+    isUpcoming / startTimestamp / タイトル を抽出する。開始予定時刻の昇順で返す。"""
+    lives = []
+    now = datetime.now(timezone.utc)
+    for vid in candidate_ids[:max_check]:
+        try:
+            html = http_get(f"https://www.youtube.com/watch?v={vid}")
+        except Exception as e:
+            print(f"[lives] watch fetch failed {vid}: {e}")
+            continue
+        if '"isUpcoming":true' not in html:
+            continue  # 通常の過去動画・配信中はスキップ
+        st = re.search(r'"startTimestamp":"([^"]+)"', html)
+        if not st:
+            print(f"[lives] {vid} isUpcoming but no startTimestamp")
+            continue
+        try:
+            dt = datetime.fromisoformat(st.group(1))
+        except Exception:
+            print(f"[lives] {vid} bad startTimestamp: {st.group(1)!r}")
+            continue
+        if dt <= now:
+            continue  # 開始時刻を過ぎている
+        tm = re.search(r'"videoDetails":\{.*?"title":"((?:[^"\\]|\\.)*)"', html, re.S)
+        title = _json_str(tm.group(1)) if tm else ""
+        lives.append({
+            "video_id": vid,
+            "title": title,
+            "start": st.group(1),
+            "url": f"https://www.youtube.com/watch?v={vid}",
+        })
+        print(f"[lives] upcoming: {vid} {title!r} @ {st.group(1)}")
+    lives.sort(key=lambda x: x["start"])
+    return lives
 
 
 def _walk(obj, found):
@@ -117,8 +168,10 @@ def main():
     changed = []
 
     # --- YouTube ---
+    entries = None
     try:
-        latests = fetch_latest_videos(5)
+        entries = fetch_rss_entries(15)
+        latests = entries[:5]
         old_ids = [v.get("id") for v in data.get("latest_videos", [])]
         new_ids = [v["id"] for v in latests]
         if old_ids != new_ids:
@@ -128,6 +181,21 @@ def main():
         print(f"[youtube] latest: {latests[0]['id']} {latests[0]['title']!r} ({len(latests)} videos)")
     except Exception as e:
         print(f"[youtube] FAILED: {e} (keeping previous value)")
+
+    # --- 今後のライブ配信（お知らせ自動掲載用） ---
+    if entries is not None:
+        try:
+            lives = fetch_upcoming_lives([e["id"] for e in entries])
+            old_lives = [v.get("video_id") for v in data.get("upcoming_lives", [])]
+            new_lives = [v["video_id"] for v in lives]
+            if old_lives != new_lives:
+                changed.append(f"upcoming_lives -> {new_lives if new_lives else '(none)'}")
+            data["upcoming_lives"] = lives
+            print(f"[lives] {len(lives)} upcoming live(s)")
+        except Exception as e:
+            print(f"[lives] FAILED: {e} (keeping previous value)")
+    else:
+        print("[lives] skipped (RSS unavailable, keeping previous value)")
 
     # --- X pinned post ---
     pinned_url = fetch_pinned_post()
