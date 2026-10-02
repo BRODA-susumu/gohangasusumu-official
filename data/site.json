@@ -1,14 +1,19 @@
 {
   "latest_video": {
-    "id": "4RB78dsCI2w",
-    "title": "【蟲神器】アヒル杯準決勝【蚕蟲祭イベント】",
-    "published": "2026-10-01T10:57:10+00:00"
+    "id": "PDd66UAMg1s",
+    "title": "【蟲神器】アヒル杯決勝戦【蚕蟲祭イベント】",
+    "published": "2026-10-02T09:00:11+00:00"
   },
   "pinned_post": {
     "url": "https://x.com/ahirugohan084/status/2097672621257019789"
   },
-  "updated_at": "2026-10-01T20:56:17+00:00",
+  "updated_at": "2026-10-02T20:57:03+00:00",
   "latest_videos": [
+    {
+      "id": "PDd66UAMg1s",
+      "title": "【蟲神器】アヒル杯決勝戦【蚕蟲祭イベント】",
+      "published": "2026-10-02T09:00:11+00:00"
+    },
     {
       "id": "4RB78dsCI2w",
       "title": "【蟲神器】アヒル杯準決勝【蚕蟲祭イベント】",
@@ -28,11 +33,6 @@
       "id": "lCbVzcej-oM",
       "title": "【蟲神器】アヒル杯１回戦【蚕蟲祭イベント】",
       "published": "2026-09-29T13:58:03+00:00"
-    },
-    {
-      "id": "zzEAvsARHgI",
-      "title": "【蟲神器】VTuber限定公認大会｜蟲神器 めざせ！最強の蟲主",
-      "published": "2026-09-27T14:08:36+00:00"
     }
   ],
   "upcoming_lives": [
