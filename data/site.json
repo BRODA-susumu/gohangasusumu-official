@@ -1,14 +1,19 @@
 {
   "latest_video": {
-    "id": "zzEAvsARHgI",
-    "title": "【蟲神器】VTuber限定公認大会｜蟲神器 めざせ！最強の蟲主【主催配信】",
-    "published": "2026-10-03T15:14:30+00:00"
+    "id": "H-L88tlcGMo",
+    "title": "V神器コーチ大集合スペシャル！【第38回】ご飯がすすむの企画室【2026年9月30日放送】",
+    "published": "2026-10-06T06:56:41+00:00"
   },
   "pinned_post": {
     "url": "https://x.com/ahirugohan084/status/2097672621257019789"
   },
-  "updated_at": "2026-10-04T21:30:04+00:00",
+  "updated_at": "2026-10-06T20:56:23+00:00",
   "latest_videos": [
+    {
+      "id": "H-L88tlcGMo",
+      "title": "V神器コーチ大集合スペシャル！【第38回】ご飯がすすむの企画室【2026年9月30日放送】",
+      "published": "2026-10-06T06:56:41+00:00"
+    },
     {
       "id": "zzEAvsARHgI",
       "title": "【蟲神器】VTuber限定公認大会｜蟲神器 めざせ！最強の蟲主【主催配信】",
@@ -28,12 +33,14 @@
       "id": "FBSXTjeQfa8",
       "title": "【第37回】ご飯がすすむの企画室【2026年9月30日放送】",
       "published": "2026-09-30T15:44:23+00:00"
-    },
-    {
-      "id": "1E8AGEz4CsA",
-      "title": "【蟲神器】アヒル杯２回戦【蚕蟲祭イベント】",
-      "published": "2026-09-30T08:32:44+00:00"
     }
   ],
-  "upcoming_lives": []
+  "upcoming_lives": [
+    {
+      "video_id": "H-L88tlcGMo",
+      "title": "V神器コーチ大集合スペシャル！【第38回】ご飯がすすむの企画室【2026年9月30日放送】",
+      "start": "2026-10-07T12:00:00+00:00",
+      "url": "https://www.youtube.com/watch?v=H-L88tlcGMo"
+    }
+  ]
 }
