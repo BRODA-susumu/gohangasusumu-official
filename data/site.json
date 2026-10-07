@@ -2,17 +2,17 @@
   "latest_video": {
     "id": "H-L88tlcGMo",
     "title": "V神器コーチ大集合スペシャル！【第38回】ご飯がすすむの企画室【2026年9月30日放送】",
-    "published": "2026-10-06T06:56:41+00:00"
+    "published": "2026-10-07T15:17:36+00:00"
   },
   "pinned_post": {
     "url": "https://x.com/ahirugohan084/status/2097672621257019789"
   },
-  "updated_at": "2026-10-06T20:56:23+00:00",
+  "updated_at": "2026-10-07T20:57:47+00:00",
   "latest_videos": [
     {
       "id": "H-L88tlcGMo",
       "title": "V神器コーチ大集合スペシャル！【第38回】ご飯がすすむの企画室【2026年9月30日放送】",
-      "published": "2026-10-06T06:56:41+00:00"
+      "published": "2026-10-07T15:17:36+00:00"
     },
     {
       "id": "zzEAvsARHgI",
@@ -35,12 +35,5 @@
       "published": "2026-09-30T15:44:23+00:00"
     }
   ],
-  "upcoming_lives": [
-    {
-      "video_id": "H-L88tlcGMo",
-      "title": "V神器コーチ大集合スペシャル！【第38回】ご飯がすすむの企画室【2026年9月30日放送】",
-      "start": "2026-10-07T12:00:00+00:00",
-      "url": "https://www.youtube.com/watch?v=H-L88tlcGMo"
-    }
-  ]
+  "upcoming_lives": []
 }
