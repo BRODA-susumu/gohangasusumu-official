@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 毎朝の自動更新スクリプト（GitHub Actionsから実行）
-- YouTube最新動画: チャンネルRSSから取得（確実）
+- YouTube最新動画: チャンネルRSSから取得。RSSが落ちている時（500等）は
+  チャンネルの「動画」「ライブ」タブ＋各watchページから取得（フォールバック）
 - X固定ポスト: syndication系エンドポイントから検出を試みる（ベストエフォート、
   失敗時は前回の値を維持）
 標準ライブラリのみ使用。
@@ -23,10 +24,18 @@ UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
 
 
+_cache = {}
+
+
 def http_get(url, timeout=30):
+    # 同じwatchページを最新動画とライブ判定で2回取りに行かないよう、1回の実行内でキャッシュする
+    if url in _cache:
+        return _cache[url]
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Language": "ja,en;q=0.8"})
     with urllib.request.urlopen(req, timeout=timeout) as r:
-        return r.read().decode("utf-8", errors="replace")
+        body = r.read().decode("utf-8", errors="replace")
+    _cache[url] = body
+    return body
 
 
 def fetch_rss_entries(n=15):
@@ -48,6 +57,53 @@ def fetch_rss_entries(n=15):
     if not out:
         raise RuntimeError("RSS feed has no entries")
     return out
+
+
+def fetch_channel_entries(n=15, per_tab=8):
+    """RSSの代わり：チャンネルの「動画」「ライブ」タブから動画IDを集め、
+    各watchページの公開日時・タイトルで新しい順に並べて返す（RSSと同じ形）。"""
+    ids = []
+    for tab in ("videos", "streams"):
+        try:
+            html = http_get(f"https://www.youtube.com/channel/{CHANNEL_ID}/{tab}")
+        except Exception as e:
+            print(f"[youtube] {tab} tab fetch failed: {e}")
+            continue
+        found = []
+        for vid in re.findall(r'"(?:contentId|videoId)":"([\w-]{11})"', html):
+            if vid not in found:
+                found.append(vid)
+        ids += [v for v in found[:per_tab] if v not in ids]
+    out = []
+    for vid in ids:
+        try:
+            html = http_get(f"https://www.youtube.com/watch?v={vid}")
+        except Exception as e:
+            print(f"[youtube] watch fetch failed {vid}: {e}")
+            continue
+        pd = re.search(r'"publishDate":"([^"]+)"', html) or re.search(r'"uploadDate":"([^"]+)"', html)
+        tm = re.search(r'"videoDetails":\{.*?"title":"((?:[^"\\]|\\.)*)"', html, re.S)
+        if not pd or not tm:
+            print(f"[youtube] {vid} missing publishDate/title, skipped")
+            continue
+        try:
+            published = datetime.fromisoformat(pd.group(1)).astimezone(timezone.utc).isoformat(timespec="seconds")
+        except Exception:
+            published = pd.group(1)
+        out.append({"id": vid, "title": _json_str(tm.group(1)), "published": published})
+    if not out:
+        raise RuntimeError("channel pages have no videos")
+    out.sort(key=lambda x: x["published"], reverse=True)
+    return out[:n]
+
+
+def fetch_entries(n=15):
+    """RSS → だめならチャンネルページ、の順で最新動画リストを返す。"""
+    try:
+        return fetch_rss_entries(n)
+    except Exception as e:
+        print(f"[youtube] RSS failed: {e} -> channel pages fallback")
+    return fetch_channel_entries(n)
 
 
 def fetch_latest_videos(n=5):
@@ -170,19 +226,12 @@ def main():
     # --- YouTube ---
     entries = None
     try:
-        entries = fetch_rss_entries(15)
-        latests = entries[:5]
-        old_ids = [v.get("id") for v in data.get("latest_videos", [])]
-        new_ids = [v["id"] for v in latests]
-        if old_ids != new_ids:
-            changed.append(f"latest_videos -> {new_ids[0]} (+{len(new_ids)})")
-        data["latest_videos"] = latests
-        data["latest_video"] = latests[0]  # 後方互換（メイン埋め込み用）
-        print(f"[youtube] latest: {latests[0]['id']} {latests[0]['title']!r} ({len(latests)} videos)")
+        entries = fetch_entries(15)
     except Exception as e:
         print(f"[youtube] FAILED: {e} (keeping previous value)")
 
     # --- 今後のライブ配信（お知らせ自動掲載用） ---
+    lives = None
     if entries is not None:
         try:
             lives = fetch_upcoming_lives([e["id"] for e in entries])
@@ -195,7 +244,20 @@ def main():
         except Exception as e:
             print(f"[lives] FAILED: {e} (keeping previous value)")
     else:
-        print("[lives] skipped (RSS unavailable, keeping previous value)")
+        print("[lives] skipped (YouTube unavailable, keeping previous value)")
+
+    # 最新動画には、まだ始まっていない配信（お知らせ側に出す）を含めない
+    if entries is not None:
+        upcoming_ids = {v["video_id"] for v in (lives or [])}
+        latests = [e for e in entries if e["id"] not in upcoming_ids][:5]
+        if latests:
+            old_ids = [v.get("id") for v in data.get("latest_videos", [])]
+            new_ids = [v["id"] for v in latests]
+            if old_ids != new_ids:
+                changed.append(f"latest_videos -> {new_ids[0]} (+{len(new_ids)})")
+            data["latest_videos"] = latests
+            data["latest_video"] = latests[0]  # 後方互換（メイン埋め込み用）
+            print(f"[youtube] latest: {latests[0]['id']} {latests[0]['title']!r} ({len(latests)} videos)")
 
     # --- X pinned post ---
     pinned_url = fetch_pinned_post()
