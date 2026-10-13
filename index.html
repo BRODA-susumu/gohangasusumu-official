@@ -545,10 +545,10 @@
     <div class="wrap sec-body">
       <div class="link-grid" id="linkGrid">
         <a class="link-btn" href="https://www.youtube.com/@%E3%81%94%E9%A3%AF%E3%81%8C%E3%81%99%E3%81%99%E3%82%80" target="_blank" rel="noopener"><span class="lb-ic">YT</span><span class="lb-txt"><span class="lb-name">メインチャンネル</span><span class="lb-sub">YouTube・ご飯がすすむ</span></span></a>
-        <a class="link-btn" href="https://www.youtube.com/@gohangasusumu84" target="_blank" rel="noopener"><span class="lb-ic" style="background:var(--yellow);color:#23201A;">制作</span><span class="lb-txt"><span class="lb-name">すすむ制作室</span><span class="lb-sub">サブCH・Final Cut / OBS講座</span></span></a>
+        <!-- 準備中のため非表示 <a class="link-btn" href="https://www.youtube.com/@gohangasusumu84" target="_blank" rel="noopener"><span class="lb-ic" style="background:var(--yellow);color:#23201A;">制作</span><span class="lb-txt"><span class="lb-name">すすむ制作室</span><span class="lb-sub">サブCH・Final Cut / OBS講座</span></span></a> -->
         <a class="link-btn" href="https://x.com/ahirugohan084" target="_blank" rel="noopener"><span class="lb-ic" style="background:#111;">X</span><span class="lb-txt"><span class="lb-name">X（旧Twitter）</span><span class="lb-sub">最新情報・告知</span></span></a>
         <a class="link-btn" href="https://www.youtube.com/channel/UC9DMzlsk9q_8kB-1fK8J3Zw/join" target="_blank" rel="noopener"><span class="lb-ic" style="background:var(--yellow);color:#23201A;">★</span><span class="lb-txt"><span class="lb-name">メンバーシップ</span><span class="lb-sub">限定動画・スタンプなど</span></span></a>
-        <a class="link-btn" href="https://gohangasusumu84.booth.pm/" target="_blank" rel="noopener"><span class="lb-ic" style="background:#fc4d50;">B</span><span class="lb-txt"><span class="lb-name">BOOTH</span><span class="lb-sub">グッズ・配信素材の頒布</span></span></a>
+        <!-- 準備中のため非表示 <a class="link-btn" href="https://gohangasusumu84.booth.pm/" target="_blank" rel="noopener"><span class="lb-ic" style="background:#fc4d50;">B</span><span class="lb-txt"><span class="lb-name">BOOTH</span><span class="lb-sub">グッズ・配信素材の頒布</span></span></a> -->
       </div>
     </div>
   </details>
@@ -582,7 +582,8 @@
     </div>
   </details>
 
-  <details class="band band-white" id="goods">
+  <!-- グッズ・ダウンロード：コンテンツが揃うまで非表示（style="display:none" を消すと復活） -->
+  <details class="band band-white" id="goods" style="display:none">
     <summary>
       <div class="wrap sec-head">
         <div class="sec-bar"></div>
@@ -815,7 +816,7 @@ window.SiteNews = (function () {
         if (lg) {
           lg.innerHTML = '';
           d.links.forEach(function (v) {
-            if (!v || !v.url) return;
+            if (!v || !v.url || v.hidden) return;  // hidden:true のリンクは非表示（準備中）
             var a = document.createElement('a'); a.className = 'link-btn'; a.href = v.url; a.target = '_blank'; a.rel = 'noopener';
             var ic = document.createElement('span'); ic.className = 'lb-ic';
             var bg = v.color || 'var(--accent)'; ic.style.background = bg; ic.style.color = ICON_TXT[bg] || '#fff';

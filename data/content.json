@@ -17,7 +17,8 @@
       "sub": "サブCH・Final Cut / OBS講座",
       "url": "https://www.youtube.com/@gohangasusumu84",
       "icon": "制作",
-      "color": "var(--yellow)"
+      "color": "var(--yellow)",
+      "hidden": true
     },
     {
       "name": "X（旧Twitter）",
@@ -38,7 +39,8 @@
       "sub": "グッズ・配信素材の頒布",
       "url": "https://gohangasusumu84.booth.pm/",
       "icon": "B",
-      "color": "#fc4d50"
+      "color": "#fc4d50",
+      "hidden": true
     }
   ],
   "works": [
