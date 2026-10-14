@@ -3,7 +3,7 @@
 """
 毎朝の自動更新スクリプト（GitHub Actionsから実行）
 - YouTube最新動画: チャンネルRSSから取得。RSSが落ちている時（500等）は
-  チャンネルの「動画」「ライブ」タブ＋各watchページから取得（フォールバック）
+  チャンネルの「動画」「ライブ」タブから取得（フォールバック）
 - X固定ポスト: syndication系エンドポイントから検出を試みる（ベストエフォート、
   失敗時は前回の値を維持）
 標準ライブラリのみ使用。
@@ -12,7 +12,7 @@ import json
 import re
 import sys
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from xml.etree import ElementTree
 
@@ -59,41 +59,87 @@ def fetch_rss_entries(n=15):
     return out
 
 
-def fetch_channel_entries(n=15, per_tab=8):
-    """RSSの代わり：チャンネルの「動画」「ライブ」タブから動画IDを集め、
-    各watchページの公開日時・タイトルで新しい順に並べて返す（RSSと同じ形）。"""
-    ids = []
-    for tab in ("videos", "streams"):
+_AGE_UNITS = [
+    (("秒", "second"), 1), (("分", "minute"), 60), (("時間", "hour"), 3600),
+    (("日", "day"), 86400), (("週間", "週", "week"), 604800),
+    (("か月", "ヶ月", "カ月", "month"), 2592000), (("年", "year"), 31536000),
+]
+
+
+def _age_seconds(text):
+    """「11 日前」「Streamed 3 weeks ago」などの相対表記を秒に。読めなければNone。"""
+    m = re.search(r"(\d+)\s*(秒|分|時間|日|週間|週|か月|ヶ月|カ月|年|second|minute|hour|day|week|month|year)", text or "")
+    if not m:
+        return None
+    n, unit = int(m.group(1)), m.group(2)
+    for names, sec in _AGE_UNITS:
+        if unit in names:
+            return n * sec
+    return None
+
+
+def _find_lockups(obj, out):
+    if isinstance(obj, dict):
+        if "lockupViewModel" in obj:
+            out.append(obj["lockupViewModel"])
+            return
+        for v in obj.values():
+            _find_lockups(v, out)
+    elif isinstance(obj, list):
+        for v in obj:
+            _find_lockups(v, out)
+
+
+# 一覧で「○日前」が付いていなかった動画（配信予定・配信中）。ライブ判定の候補にだけ使う
+pending_ids = []
+
+
+def fetch_channel_entries(n=15, per_tab=10):
+    """RSSの代わり：チャンネルの「動画」「ライブ」タブ（ytInitialData）だけから
+    動画ID・タイトル・おおよその公開日時を取り、新しい順に返す（RSSと同じ形）。
+    watchページは使わない（GitHub Actionsのサーバーからだと公開日時が取れないため）。
+    「○日前」が付いていないもの（配信予定・配信中）は最新動画に含めない。"""
+    now = datetime.now(timezone.utc)
+    items = []  # (age_sec, tab順, 動画)
+    for tab_no, tab in enumerate(("videos", "streams")):
         try:
             html = http_get(f"https://www.youtube.com/channel/{CHANNEL_ID}/{tab}")
+            m = re.search(r"var ytInitialData = (\{.*?\});</script>", html, re.S)
+            data = json.loads(m.group(1))
         except Exception as e:
-            print(f"[youtube] {tab} tab fetch failed: {e}")
+            print(f"[youtube] {tab} tab failed: {e}")
             continue
-        found = []
-        for vid in re.findall(r'"(?:contentId|videoId)":"([\w-]{11})"', html):
-            if vid not in found:
-                found.append(vid)
-        ids += [v for v in found[:per_tab] if v not in ids]
-    out = []
-    for vid in ids:
-        try:
-            html = http_get(f"https://www.youtube.com/watch?v={vid}")
-        except Exception as e:
-            print(f"[youtube] watch fetch failed {vid}: {e}")
-            continue
-        pd = re.search(r'"publishDate":"([^"]+)"', html) or re.search(r'"uploadDate":"([^"]+)"', html)
-        tm = re.search(r'"videoDetails":\{.*?"title":"((?:[^"\\]|\\.)*)"', html, re.S)
-        if not pd or not tm:
-            print(f"[youtube] {vid} missing publishDate/title, skipped")
-            continue
-        try:
-            published = datetime.fromisoformat(pd.group(1)).astimezone(timezone.utc).isoformat(timespec="seconds")
-        except Exception:
-            published = pd.group(1)
-        out.append({"id": vid, "title": _json_str(tm.group(1)), "published": published})
-    if not out:
-        raise RuntimeError("channel pages have no videos")
-    out.sort(key=lambda x: x["published"], reverse=True)
+        lockups = []
+        _find_lockups(data, lockups)
+        count = 0
+        for lv in lockups:
+            vid = lv.get("contentId") or ""
+            if not re.fullmatch(r"[\w-]{11}", vid):
+                continue
+            meta = lv.get("metadata", {}).get("lockupMetadataViewModel", {})
+            title = meta.get("title", {}).get("content", "")
+            parts = [p.get("text", {}).get("content", "")
+                     for row in meta.get("metadata", {}).get("contentMetadataViewModel", {}).get("metadataRows", [])
+                     for p in row.get("metadataParts", [])]
+            age = next((a for a in map(_age_seconds, parts) if a is not None), None)
+            if age is None or not title:
+                if vid not in pending_ids:
+                    pending_ids.append(vid)
+                continue
+            published = (now - timedelta(seconds=age)).isoformat(timespec="seconds")
+            items.append((age, tab_no * 1000 + count, {"id": vid, "title": title, "published": published}))
+            count += 1
+            if count >= per_tab:
+                break
+        print(f"[youtube] {tab} tab: {count} videos")
+    items.sort(key=lambda x: (x[0], x[1]))
+    out, seen = [], set()
+    for _, _, v in items:
+        if v["id"] not in seen:
+            seen.add(v["id"])
+            out.append(v)
+    if len(out) < 3:
+        raise RuntimeError(f"channel pages returned only {len(out)} videos")
     return out[:n]
 
 
@@ -234,7 +280,7 @@ def main():
     lives = None
     if entries is not None:
         try:
-            lives = fetch_upcoming_lives([e["id"] for e in entries])
+            lives = fetch_upcoming_lives(pending_ids + [e["id"] for e in entries if e["id"] not in pending_ids])
             old_lives = [v.get("video_id") for v in data.get("upcoming_lives", [])]
             new_lives = [v["video_id"] for v in lives]
             if old_lives != new_lives:
@@ -248,7 +294,7 @@ def main():
 
     # 最新動画には、まだ始まっていない配信（お知らせ側に出す）を含めない
     if entries is not None:
-        upcoming_ids = {v["video_id"] for v in (lives or [])}
+        upcoming_ids = {v["video_id"] for v in (lives or [])} | set(pending_ids)
         latests = [e for e in entries if e["id"] not in upcoming_ids][:5]
         if latests:
             old_ids = [v.get("id") for v in data.get("latest_videos", [])]
