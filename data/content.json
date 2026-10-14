@@ -35,6 +35,13 @@
       "color": "var(--yellow)"
     },
     {
+      "name": "LINEスタンプ",
+      "sub": "蟲神器・イジンデン・千怪戦戯のイラストレーター「千代丸」先生書き下ろしのスタンプ",
+      "url": "https://line.me/S/sticker/32901373",
+      "icon": "LINE",
+      "color": "#06C755"
+    },
+    {
       "name": "BOOTH",
       "sub": "グッズ・配信素材の頒布",
       "url": "https://gohangasusumu84.booth.pm/",
