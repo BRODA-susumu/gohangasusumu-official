@@ -1,14 +1,19 @@
 {
   "latest_video": {
-    "id": "ShcLC6cW-UQ",
-    "title": "【第42回】ご飯がすすむの企画室【2026年11月11日放送】",
-    "published": "2026-11-12T03:26:03+00:00"
+    "id": "CsB37uIZnzw",
+    "title": "【第43回】ご飯がすすむの企画室【2026年11月18日放送】",
+    "published": "2026-11-18T16:42:02+00:00"
   },
   "pinned_post": {
     "url": "https://x.com/ahirugohan084/status/1659294063219318784"
   },
-  "updated_at": "2026-11-14T01:04:06+00:00",
+  "updated_at": "2026-11-19T02:01:17+00:00",
   "latest_videos": [
+    {
+      "id": "CsB37uIZnzw",
+      "title": "【第43回】ご飯がすすむの企画室【2026年11月18日放送】",
+      "published": "2026-11-18T16:42:02+00:00"
+    },
     {
       "id": "ShcLC6cW-UQ",
       "title": "【第42回】ご飯がすすむの企画室【2026年11月11日放送】",
@@ -28,12 +33,14 @@
       "id": "bf7gDdOCKfw",
       "title": "【第40回】ご飯がすすむの企画室【2026年10月21日放送】",
       "published": "2026-10-22T02:59:17+00:00"
-    },
-    {
-      "id": "73dRe4-IKJI",
-      "title": "【コラボ】V蟲主を全員欺くアヒルになる｜めっちゃカメレオン",
-      "published": "2026-10-19T15:20:14+00:00"
     }
   ],
-  "upcoming_lives": []
+  "upcoming_lives": [
+    {
+      "video_id": "SV0eF1TfCzo",
+      "title": "【コラボ】V蟲主と騙し合いのゲームをする！｜めっちゃカメレオン&Among Us",
+      "start": "2026-11-19T12:00:00+00:00",
+      "url": "https://www.youtube.com/watch?v=SV0eF1TfCzo"
+    }
+  ]
 }
